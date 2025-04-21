@@ -15,3 +15,29 @@ ProjDir/
                 ├── *.json / *.npy
                 ├── train.txt
                 └── test.txt
+
+
+
+
+
+
+ProjDir/
+├── datasetDji_012/
+│   ├── Dji_012/
+│   │   ├── RGB-crops/
+│   │   │   └── Dji_012/
+│   │   │       ├── image1.tif
+│   │   │       ├── image2.tif
+│   │   │       └── ...
+│   │   └── Truth/
+│   │       ├── image1_DepthMap.tif
+│   │       ├── image1_NormalMap.tif
+│   │       └── ...
+│   └── root_dir/
+│       └── crops_rpcs_ba_v2/
+│           └── Dji_012/
+│               ├── DenseDepth_ZM4/
+│               │   ├── image1_2DPts.txt
+│               │   ├── image1_3DPts.txt
+│               │   ├── image1_Correl.txt
+│               │   └── ...
