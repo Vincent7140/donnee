@@ -1,0 +1,42 @@
+import json
+import math
+import os
+from copy import deepcopy
+
+def generate_orbit_offsets(center_lat, center_lon, radius_deg, n_views):
+    offsets = []
+    for i in range(n_views):
+        angle_rad = math.radians(i * (360 / n_views))
+        lat = center_lat + radius_deg * math.sin(angle_rad)
+        lon = center_lon + radius_deg * math.cos(angle_rad)
+        offsets.append((lat, lon))
+    return offsets
+
+def main():
+    input_json = "JAX_214_007_RGB.json"  # chemin vers ton fichier source
+    output_dir = "orbit_jsons"
+    os.makedirs(output_dir, exist_ok=True)
+
+    with open(input_json, "r") as f:
+        base_data = json.load(f)
+
+    original_lat_offset = base_data["rpc"]["lat_offset"]
+    original_lon_offset = base_data["rpc"]["lon_offset"]
+
+    radius_deg = 0.0003  # environ 30 mètres
+    n_views = 10
+
+    orbit_positions = generate_orbit_offsets(original_lat_offset, original_lon_offset, radius_deg, n_views)
+
+    for i, (lat, lon) in enumerate(orbit_positions):
+        data_copy = deepcopy(base_data)
+        data_copy["rpc"]["lat_offset"] = lat
+        data_copy["rpc"]["lon_offset"] = lon
+        out_path = os.path.join(output_dir, f"orbit_view_{i:02d}.json")
+        with open(out_path, "w") as out_f:
+            json.dump(data_copy, out_f, indent=2)
+
+    print(f"{n_views} fichiers générés dans {output_dir}")
+
+if __name__ == "__main__":
+    main()
