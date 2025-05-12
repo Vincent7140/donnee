@@ -1,0 +1,36 @@
+
+# 1. Feature extraction
+colmap feature_extractor \
+    --database_path database.db \
+    --image_path images/
+
+# 2. Matching
+colmap exhaustive_matcher \
+    --database_path database.db
+
+# 3. Structure-from-Motion
+mkdir sparse
+colmap mapper \
+    --database_path database.db \
+    --image_path images/ \
+    --output_path sparse/
+
+# 4. Image undistortion (for MVS)
+mkdir dense
+colmap image_undistorter \
+    --image_path images/ \
+    --input_path sparse/0 \
+    --output_path dense/ \
+    --output_type COLMAP
+
+# 5. PatchMatch Stereo (GPU accelerated)
+colmap patch_match_stereo \
+    --workspace_path dense/ \
+    --workspace_format COLMAP \
+    --PatchMatchStereo.geom_consistency true
+
+# 6. Stereo Fusion to create point cloud (includes depth maps)
+colmap stereo_fusion \
+    --workspace_path dense/ \
+    --workspace_format COLMAP \
+    --output_path dense/fused.ply
