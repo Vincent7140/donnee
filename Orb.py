@@ -80,3 +80,9 @@ for i, theta in enumerate(angles):
 
     # Sauvegarder
     save_rpc(rpc_new, f"rpc_orbite_{i:03}.json")
+
+
+
+points_2d = np.array([rpc.projection(p[0], p[1], p[2]) for p in points_3d])  # (col, row)
+cols_rows = np.array([rpc.projection(*p) for p in points_3d])
+rows_cols = np.flip(cols_rows, axis=1)  # passe de (col, row) à (row, col)
