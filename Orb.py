@@ -1,3 +1,48 @@
+
+from rpcfit import calibrate_rpc
+from rpcm.rpc_model import RPCModel
+
+# Charger le fichier RPC existant
+with open("JAX_214_007_RGB.json") as f:
+    import json
+    data = json.load(f)
+
+rpc = RPCModel(data["rpc"], dict_format="rpcm")
+
+# Générer des points 3D autour du centre
+N = 500
+center_lon, center_lat, center_alt = rpc.lon_offset, rpc.lat_offset, rpc.alt_offset
+lon = center_lon + np.random.uniform(-rpc.lon_scale, rpc.lon_scale, N)
+lat = center_lat + np.random.uniform(-rpc.lat_scale, rpc.lat_scale, N)
+alt = center_alt + np.random.uniform(-rpc.alt_scale/10, rpc.alt_scale/10, N)
+points_3d = np.stack([lon, lat, alt], axis=1)
+
+# Projeter avec le modèle original
+points_2d = np.array([rpc.projection(*p) for p in points_3d])
+points_2d = np.flip(points_2d, axis=1)  # convert (col, row) to (row, col)
+
+# === 4. Générer un nouveau modèle RPC ===
+rpc_new = calibrate_rpc(
+    target=points_2d,        # (col, row)
+    input_locs=points_3d,    # (lon, lat, alt)
+    separate=True,
+    orientation="projection",
+    init=None
+)
+
+# === 5. Sauvegarde manuelle (convert to dict and save) ===
+with open("rpc_synthetique.json", "w") as f:
+    json.dump(rpc_new.__dict__, f, indent=2)
+
+print("✅ Nouveau modèle RPC calibré et sauvegardé.")
+
+
+
+
+
+
+
+
 import numpy as np
 import rpcm
 from rpcfit import fit_rpc
