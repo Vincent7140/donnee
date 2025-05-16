@@ -131,3 +131,29 @@ for i, theta in enumerate(angles):
 points_2d = np.array([rpc.projection(p[0], p[1], p[2]) for p in points_3d])  # (col, row)
 cols_rows = np.array([rpc.projection(*p) for p in points_3d])
 rows_cols = np.flip(cols_rows, axis=1)  # passe de (col, row) à (row, col)
+
+
+
+
+# Définir une petite grille régulière (pas aléatoire)
+num = 10
+delta_lon = rpc_orig.lon_scale * 0.2
+delta_lat = rpc_orig.lat_scale * 0.2
+delta_alt = rpc_orig.alt_scale * 0.05
+
+lon_vals = np.linspace(-delta_lon, delta_lon, num) + rpc_orig.lon_offset
+lat_vals = np.linspace(-delta_lat, delta_lat, num) + rpc_orig.lat_offset
+alt_vals = np.linspace(-delta_alt, delta_alt, 3) + rpc_orig.alt_offset
+
+lon, lat, alt = np.meshgrid(lon_vals, lat_vals, alt_vals)
+points_3d = np.stack([lon.ravel(), lat.ravel(), alt.ravel()], axis=1)
+
+
+
+rpc_new = calibrate_rpc(
+    target=points_2d,
+    input_locs=points_3d,
+    separate=True,
+    orientation="projection",
+    init=rpc_orig  # <- ici on garde les offsets/scales identiques
+)
